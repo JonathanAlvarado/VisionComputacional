@@ -27,7 +27,12 @@ def grises(im,ancho,alto):
 
             im.putpixel((x,y),gris)
 
-    im.save('gris.jpg')
+        im.save('gris.jpg')
+
+def actualizarPantalla(ventana):
+    fondo = pygame.image.load('gris.jpg').convert()
+    ventana.blit(fondo,(0,0))
+    pygame.display.flip()
 
 def main():
     ancho,alto,im = medidas()
@@ -44,5 +49,8 @@ def main():
         evento = pygame.event.poll()
         if evento.type == pygame.QUIT:
             break
+        if evento.type == pygame.KEYDOWN:
+            if evento.key == K_SPACE:
+                actualizarPantalla(ventana)
 
 main()
