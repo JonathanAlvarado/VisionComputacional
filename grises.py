@@ -3,6 +3,8 @@ from pygame.locals import *
 from PIL import Image
 
 imagenPath = 'kristen.jpg'
+umbralNegro = 16
+umbralBlanco = 240
 
 def medidas():
     im = Image.open(imagenPath)
@@ -23,7 +25,16 @@ def grises(im,ancho,alto):
             b = rgb[2]
             
             promedio = int((r+g+b)/3)
-            gris = (promedio,promedio,promedio)
+            #print promedio
+            
+            if promedio == umbralNegro:
+                gris = (umbralNegro, umbralNegro, umbralNegro)
+                #print "Negro= ",gris
+            elif promedio == umbralNegro:
+                gris = (umbralNegro, umbralNegro, umbralNegro)
+                #print "Blanco= ",gris
+            else:
+                gris = (promedio,promedio,promedio)
 
             im.putpixel((x,y),gris)
 
