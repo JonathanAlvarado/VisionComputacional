@@ -3,8 +3,8 @@ from pygame.locals import *
 from PIL import Image
 
 imagenPath = 'kristen.jpg'#ruta de la imagen
-umbralNegro = 50#Umbral para cambiar pixeles a negro
-umbralBlanco = 200#Umbral para cambiar pixeles a blanco
+umbralNegro = 99#Umbral para cambiar pixeles a negro
+umbralBlanco = 100#Umbral para cambiar pixeles a blanco
 
 #obtiene las medidas de la imagen para ajustar la ventana a la imagen
 def medidas():
@@ -51,10 +51,10 @@ def umbrales(im,ancho,alto):
             #print promedio
             
             if promedio < umbralNegro:
-                gris = (umbralNegro, umbralNegro, umbralNegro)
+                gris = (0, 0, 0)
                 #print "Negro= ",gris
             elif promedio > umbralBlanco:
-                gris = (umbralBlanco, umbralBlanco, umbralBlanco)
+                gris = (255, 255, 255)
                 #print "Blanco= ",gris
             else:
                 gris = (promedio,promedio,promedio)
