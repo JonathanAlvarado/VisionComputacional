@@ -96,5 +96,5 @@ def main():
                 actualizarPantalla(ventana,cargar)
                 
 
-print 'Presiona la barra espaciadora para cambiar la imagen a escala de grises o la tecla L para jugar con los umbrales'
+print 'Presiona\n barra espaciadora para cambiar la imagen a escala de grises\n tecla L para jugar con los umbrales'
 main()
