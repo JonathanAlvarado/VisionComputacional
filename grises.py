@@ -31,7 +31,7 @@ def grises(im,ancho,alto):
             #print promedio
             gris = (promedio,promedio,promedio)
             im.putpixel((x,y),gris)
-
+    print '\nEscala de grises'
     im.save('gris.png')#guarda la imagen
 
 
@@ -53,6 +53,7 @@ def umbrales(im,ancho,alto):
                 gris = (promedio,promedio,promedio)
 
             im.putpixel((x,y),gris)
+    print '\nUmbrales'
     im.save('umbrales.png')
 
 
@@ -93,7 +94,7 @@ def filtros(im,ancho,alto):
             filtro = [sum(i) for i in zip(*pix)]
             #print 'filtro: ',filtro
             imPixeles[x,y] = filtro[0]/3, filtro[1]/3, filtro[2]/3
-    print 'distorsion'
+    print '\nFiltro aplicado'
     im.save(imFiltro)
 
 
@@ -135,6 +136,5 @@ def main():
                 actualizar(ventana,3)
                 
                 
-
-print 'Presiona\n barra espaciadora para cambiar la imagen a escala de grises\n tecla L para jugar con los umbrales'
+print 'Presiona\n\nBarra espaciadora -> para cambiar la imagen a escala de grises\nTecla L -> para jugar con los umbrales\nTecla f -> para aplicar filtro'
 main()
