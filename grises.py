@@ -3,14 +3,14 @@ from pygame.locals import *
 from PIL import Image
 import numpy
 
-imagenPath = 'kristen.jpg'#ruta de la imagen
+#imagenPath = 'kristen.jpg'#ruta de la imagen
 umbralNegro = 99#Umbral para cambiar pixeles a negro
 umbralBlanco = 100#Umbral para cambiar pixeles a blanco
 imFiltro = 'filtro.png'
 
 #obtiene las medidas de la imagen para ajustar la ventana a la imagen
-def medidas():
-    im = Image.open(imagenPath)
+def medidas(imagen):
+    im = Image.open(imagen)
     #print im.mode
     (ancho, alto) = im.size
     return ancho,alto,im
@@ -111,11 +111,12 @@ def actualizar(ventana, cargar):
 
 
 def main():
-    ancho,alto,im = medidas()#toma medidas de la imagen
+    imagen = raw_input('\nNombre o ruta de la imagen con extension: ')
+    ancho,alto,im = medidas(imagen)#toma medidas de la imagen
     pygame.init()
     ventana = pygame.display.set_mode([ancho,alto])#crea ventana de acuerdo a medidas de la imagen
     pygame.display.set_caption('Laboratorio 1')
-    fondo = pygame.image.load(imagenPath).convert()#carga fondo
+    fondo = pygame.image.load(imagen).convert()#carga fondo
     ventana.blit(fondo,(0,0))#agrega imagen a ventana
     #pygame.display.flip()#actualiza pantalla
     pygame.display.update()
@@ -136,5 +137,5 @@ def main():
                 actualizar(ventana,3)
                 
                 
-print 'Presiona\n\nBarra espaciadora -> para cambiar la imagen a escala de grises\nTecla L -> para jugar con los umbrales\nTecla f -> para aplicar filtro'
+print '\nPresiona\n\nBarra espaciadora -> para cambiar la imagen a escala de grises\nTecla L -> para jugar con los umbrales\nTecla f -> para aplicar filtro'
 main()
