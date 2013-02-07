@@ -92,8 +92,8 @@ def filtros(im,ancho,alto):
                 pix.append(list(imPixeles[x, y+1]))
             
             filtro = [sum(i) for i in zip(*pix)]
-            #print 'filtro: ',filtro
-            imPixeles[x,y] = filtro[0]/3, filtro[1]/3, filtro[2]/3
+            total = len(pix)
+            imPixeles[x,y] = filtro[0]/total, filtro[1]/total, filtro[2]/total
     print '\nFiltro aplicado'
     im.save(imFiltro)
 
