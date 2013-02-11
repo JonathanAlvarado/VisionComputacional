@@ -35,6 +35,8 @@ class Filtros:
         self.panel = self.botones.create_window(350,0, anchor='nw', window=self.boton)
         self.boton = Button(self.botones, text='Limpiar', fg='black', command=self.quitarSalPimienta)
         self.panel = self.botones.create_window(400,0, anchor='nw', window=self.boton)
+        self.boton = Button(self.botones, text='Convolucion', fg='black', command=self.convolucion)
+        self.panel = self.botones.create_window(450,0, anchor='nw', window=self.boton)
 
         self.canvas.pack(side='top')
         self.botones.pack(side='bottom')
@@ -145,8 +147,9 @@ class Filtros:
         salPim = self.imActual.copy()
         pixeles = salPim.load()
         area = self.w * self.h
-        tot = int(area * random.uniform(0,0.5))
-        
+        num = random.uniform(1,area)/2
+        tot = int(num * random.uniform(0.1, 0.5))
+        print tot
         if salPim.mode == 'RGB':
             for i in range(tot):
                 x,y=random.randint(0,self.w-1), random.randint(0,self.h-1)
@@ -213,15 +216,36 @@ class Filtros:
                             vecinos.append(pixeles[x, y+1])
                         
                         prom = sum(vecinos)/len(vecinos)
-                        print 'actual=',pixeles[x,y],'promedio=',prom-pixeles[x,y]
-                        if (prom - pixeles[x,y]) <= -100:
-                            normPix[x,y] = prom
-                        elif (prom - pixeles[x,y]) >= 100:
+                        print 'actual=',pixeles[x,y],'resta=',pixeles[x,y]-prom
+                        if pixeles[x,y] - prom <= -150 or pixeles[x,y]-prom >=150:
                             normPix[x,y] = prom
             normal.save('sinSal.png')
             self.imActual = normal
 
         self.actualizarFondo()
+
+    def convolucion(self):
+        pixeles = self.imActual.load()
+        imCon = Image.new("L", (self.w, self.h))
+        conPix = imCon.load()
+        h = [(0,0.2,0), (0.2,0.2,0.2), (0,0.2,0)]
+
+        for x in range(self.w):
+            for y in range(self.h):
+                suma = 0
+                for i in range(3):
+                    for j in range (3):
+                        try:
+                            if x < self.w or y < self.h:
+                                suma += int(pixeles[(x-1)+i,(y-1)+j] * h[j][i])
+                        except IndexError:
+                            suma += 0
+                    #print suma
+                    conPix[x,y] = suma
+        imCon.save('convolusion.png')
+        self.imActual = imCon
+        self.actualizarFondo()
+        
 
 def main():
     try:
