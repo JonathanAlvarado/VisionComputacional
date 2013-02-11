@@ -4,6 +4,7 @@ from Tkinter import *
 from PIL import Image, ImageTk
 import sys
 import random
+import math
 
 class Filtros:
     
@@ -28,15 +29,17 @@ class Filtros:
         self.boton = Button(self.botones, text='Escala de grises', fg='black', command=self.grises)
         self.panel = self.botones.create_window(5,0, anchor='nw', window=self.boton)
         self.boton = Button(self.botones, text='Difuminar', fg='black', command=self.difuminar)
-        self.panel = self.botones.create_window(150,0, anchor='nw', window=self.boton)
+        self.panel = self.botones.create_window(140,0, anchor='nw', window=self.boton)
         self.boton = Button(self.botones, text='Binarizar', fg='black', command=self.binarizar)
-        self.panel = self.botones.create_window(250,0, anchor='nw', window=self.boton)
+        self.panel = self.botones.create_window(240,0, anchor='nw', window=self.boton)
         self.boton = Button(self.botones, text='Ruido', fg='black', command=self.salPimienta)
-        self.panel = self.botones.create_window(350,0, anchor='nw', window=self.boton)
+        self.panel = self.botones.create_window(330,0, anchor='nw', window=self.boton)
         self.boton = Button(self.botones, text='Limpiar', fg='black', command=self.quitarSalPimienta)
         self.panel = self.botones.create_window(400,0, anchor='nw', window=self.boton)
         self.boton = Button(self.botones, text='Convolucion', fg='black', command=self.convolucion)
-        self.panel = self.botones.create_window(450,0, anchor='nw', window=self.boton)
+        self.panel = self.botones.create_window(480,0, anchor='nw', window=self.boton)
+        self.boton = Button(self.botones, text='Bordes', fg='black', command=self.bordes)
+        self.panel = self.botones.create_window(590,0, anchor='nw', window=self.boton)
 
         self.canvas.pack(side='top')
         self.botones.pack(side='bottom')
@@ -127,13 +130,13 @@ class Filtros:
         
         for x in range(self.w):
             for y in range(self.h):
-                if self.im.mode == 'RGB':
+                if self.imActual.mode == 'RGB':
                     if max( pixeles[x,y] ) >= 127:
                         binPix[x,y] = 255
                     else:
                         binPix[x,y] = 0
-                elif self.im.mode == 'L':
-                    if max( pixeles[x,y] ) >= 127:
+                elif self.imActual.mode == 'L':
+                    if pixeles[x,y] >= 127:
                         binPix[x,y] = 127
                     else:
                         binPix[x,y] = 0
@@ -230,8 +233,8 @@ class Filtros:
         conPix = imCon.load()
         h = [(0,0.2,0), (0.2,0.2,0.2), (0,0.2,0)]
 
-        for x in range(self.w):
-            for y in range(self.h):
+        for x in range(self.h):
+            for y in range(self.w):
                 suma = 0
                 for i in range(3):
                     for j in range (3):
@@ -245,7 +248,49 @@ class Filtros:
         imCon.save('convolusion.png')
         self.imActual = imCon
         self.actualizarFondo()
+
+
+    def bordes(self):
+        '''Aplica mascara Sobel para obtener los bordes de una imagen '''
+        if self.imActual.mode == 'RGB':
+            self.binarizar()
         
+        pixeles = self.imActual.load()
+        imBor = Image.new("L", (self.w, self.h))
+        borPix = imBor.load()
+
+        gx = ([-1,0,1], [-2,0,2], [-1,0,1])
+        gy = (([1,2,1], [0,0,0], [-1,-2,-1]))
+
+
+        for y in range(self.h):
+            for x in range(self.w):
+                sumaX = 0
+                sumaY = 0
+                for i in range(len( gx[0] )):
+                    for j in range(len( gy[0] )):
+                        try:
+                            resX = gx[i][j] * pixeles[x+j,y+i]
+                            resY = gy[i][j] * pixeles[x+j,y+i]
+                        except IndexError:
+                            resX = 0
+                            resY = 0
+                        
+                        sumaX = resX + sumaX
+                        sumaY = resY + sumaY
+                cuadradosX = pow(sumaX,2)
+                cuadradosY = pow(sumaY,2)
+                g = int(math.sqrt(cuadradosX + cuadradosY))
+                suma = g
+
+                if suma > 255:
+                    borPix[x,y] = 255
+                elif suma < 0:
+                    borPix[x,y] = 0
+        imBor.save('bordes.png')
+        self.imActual = imBor
+        self.actualizarFondo()
+                        
 
 def main():
     try:
