@@ -150,38 +150,43 @@ class Filtros:
         '''Aplica ruido sal y pimienta escogiendo pixeles al azar '''
         salPim = self.imActual.copy()
         pixeles = salPim.load()
-        area = self.w * self.h
-        num = random.uniform(1,area)/2
-        tot = int(num * random.uniform(0.1, 0.5))
-        print tot
+        frec = 0.02
+
         if salPim.mode == 'RGB':
-            for i in range(tot):
-                x,y=random.randint(0,self.w-1), random.randint(0,self.h-1)
-                cambio = random.randint(0,1)
-                if cambio==1:
-                    pixeles[x,y] = (255,255,255)
-                else:
-                    pixeles[x,y] = (0,0,0)
-            print 'entre'
+            for x in range(self.w):
+                for y in range(self.h):
+                    cambio = random.uniform(0,1)
+                    if cambio < frec:
+                        if cambio>0:
+                            pixeles[x,y] = (255,255,255)
+                        else:
+                            pixeles[x,y] = (0,0,0)
+            
         elif salPim.mode == 'L':
-            for i in range(tot):
-                x,y=random.randint(0,self.w-1), random.randint(0,self.h-1)
-                cambio = random.randint(0,1)
-                if cambio==1:
-                    pixeles[x,y] = 255
-                else:
-                    pixeles[x,y] = 0
+            for x in range(self.w):
+                for y in range(self.h):
+                    cambio = random.uniform(0,1.0)
+                    if cambio < frec:
+                        if cambio > 0:
+                            pixeles[x,y] = 255
+                        else:
+                            pixeles[x,y] = 0
 
         salPim.save('salPimienta.png')
         self.imActual = salPim
         self.actualizarFondo()
 
+
     def quitarSalPimienta(self):
+        '''Quita el ruido sal y pimienta
+        '''
         pixeles = self.imActual.load()
+        umbral = 30
         
         if self.imActual.mode == 'RGB':
             normal = Image.new('RGB', (self.w, self.h))
             normPix = normal.load()
+            
             for x in range(self.w):
                 for y in range(self.h):
                     salPimienta = [(255,255,255),(0,0,0)]
@@ -196,7 +201,7 @@ class Filtros:
                         if y < self.h-1:
                             vecinos.append(list(pixeles[x, y+1]))
             
-                        sumas = [sum(i) for i in zip(*vecinos)]
+                        suma = [sum(i) for i in zip(*vecinos)]
                         total = len(vecinos)
                         normPix[x,y] = sumas[0]/total, sumas[1]/total, sumas[2]/total
             normal.save('sinSal.png')
@@ -207,25 +212,24 @@ class Filtros:
             normPix = normal.load()
             for x in range(self.w):
                 for y in range(self.h):
-                    salPimienta = [255,0]
                     vecinos = []
-                    if pixeles[x,y] in salPimienta:
-                        if x > 0:
-                            vecinos.append(pixeles[x-1, y])
-                        if y > 0:
-                            vecinos.append(pixeles[x, y-1])
-                        if x < self.w-1:
-                            vecinos.append(pixeles[x+1, y])
-                        if y < self.h-1:
-                            vecinos.append(pixeles[x, y+1])
-                        
-                        prom = sum(vecinos)/len(vecinos)
-                        print 'actual=',pixeles[x,y],'resta=',pixeles[x,y]-prom
-                        if pixeles[x,y] - prom <= -150 or pixeles[x,y]-prom >=150:
-                            normPix[x,y] = prom
+                    if x > 0:
+                        vecinos.append(pixeles[x-1, y])
+                    if y > 0:
+                        vecinos.append(pixeles[x, y-1])
+                    if x < self.w-1:
+                        vecinos.append(pixeles[x+1, y])
+                    if y < self.h-1:
+                        vecinos.append(pixeles[x, y+1])
+
+                    prom = sum(vecinos)/len(vecinos)
+                    if abs(prom - pixeles[x,y]) > 60:
+                        normPix[x,y] = prom
+                    else:
+                        normPix[x,y] = pixeles[x,y]
+
             normal.save('sinSal.png')
             self.imActual = normal
-
         self.actualizarFondo()
 
     def convolucion(self):
