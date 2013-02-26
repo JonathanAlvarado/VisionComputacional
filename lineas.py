@@ -105,30 +105,6 @@ def normalizar(im):
     imNorm.save('normalizada.png')
     return imNorm
 
-def bfs(im, origen, color):
-    pixeles = im.load()
-    cola = []
-    coordenadas = []
-    cola.append(origen)
-    inicio = pixeles[origen]
-
-    while len(cola) > 0:
-        x,y = cola.pop(0)
-        actual = pixeles[x,y]
-
-        if actual == inicio or actual == color:
-            for dx in [-1, 0, 1]:
-                for dy in [-1, 0, 1]:
-                    fila, colum = x+dx, y+dy
-                    try:
-                        candidato = pixeles[fila,colum]
-                        if candidato == inicio:
-                            pixeles[fila,colum] = color
-                            cola.append((fila,colum))
-                            coordenadas.append((fila,colum))
-                    except:
-                        pass
-    return coordenadas
 
 def frecuentes(histo, cantidad):
     frec = list()
@@ -155,21 +131,21 @@ def frecuentes(histo, cantidad):
         #print frecuencia
     return incluidos
 
-def deteccionDeLineas(im,umbral):
+def deteccionDeLineas(original,im,umbral):
     '''Transformada de Hough
     umbral = lineas a considerar'''
-    sobelx = [[-1, 0, 1], [-2, 0, 2], [-1, 0, 1]]
-    sobely = [[1, 2, 1], [0, 0, 0], [-1, -2, -1]]
+    #sobelx = [[-1, 0, 1], [-2, 0, 2], [-1, 0, 1]]
+    #sobely = [[1, 2, 1], [0, 0, 0], [-1, -2, -1]]
+    sobelx = [[-1, -1, -1], [2, 2, 2], [-1, -1, -1]]
+    sobely = [[-1, 2, -1], [-1, 2, -1], [-1, 2, -1]]
     imx = convolucion(im, sobelx)
     imy = convolucion(im, sobely)
     gx = imx.load()
     gy = imy.load()
-    m = binarizar(normalizar(euclides(imx,imy)))
+    #m = binarizar(normalizar(euclides(imx,imy)))
     w,h = im.size
-    #coords = bfs(m,(0,0),(255,255,255))
-    angulos = []
     comb = {}
-    pixeles = m.load()
+    pixeles = original.load()
     resultado = list()
 
     for x in range(w):
@@ -200,9 +176,6 @@ def deteccionDeLineas(im,umbral):
     incluir = int(ceil (len(comb) * umbral))
     
     frec = frecuentes(comb, incluir)
-    '''for i in range(incluir):
-        rho, theta = comb[i][0]
-        frec[ (rho,theta) ] = comb[1]'''
 
     for x in range(w):
         for y in range(h):
@@ -211,14 +184,16 @@ def deteccionDeLineas(im,umbral):
                     
                 if (rho, theta) in frec:
                     if theta == 0:
-                        pixeles[x,y] = (255,0,0)
+                        pixeles[x,y] = (0,255,0)
                     elif theta == 90:
-                        pixeles [x,y] = (0,0,255)
-    m.save('lineas.png')
+                        pixeles [x,y] = (255,0,0)
+    original.save('lineas.png')
 
 if __name__=="__main__":
     imPath = sys.argv[1]
     im = Image.open(imPath)
     gris = escalaDeGrises(im)
     dif = difuminar(gris)
-    lineas = deteccionDeLineas(dif,.05)
+    binaria = normalizar(binarizar(dif))
+    
+    lineas = deteccionDeLineas(im,binaria,10)
