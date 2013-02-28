@@ -159,7 +159,8 @@ def deteccionDeLineas(original,im,umbral):
             elif hor == 0 and ver == 255:
                 theta = 90
             elif fabs(hor) > 0.0:
-                theta = atan(fabs(ver/hor))
+                theta = atan(ver/hor)
+                #print theta
             if theta is not None:
                 rho = fabs( x * cos(theta) + y * sin(theta))
                 
@@ -174,19 +175,22 @@ def deteccionDeLineas(original,im,umbral):
         resultado.append(datos)
 
     incluir = int(ceil (len(comb) * umbral))
-    
     frec = frecuentes(comb, incluir)
 
     for x in range(w):
         for y in range(h):
             if x > 0 and x< w-1 and y > 0 and y < h-1:
                 rho, theta = resultado[x][y]
-                    
+
                 if (rho, theta) in frec:
-                    if theta == 0:
+                    theta = '%0.2f'%theta
+                    print theta
+                    if theta == '0.00':
                         pixeles[x,y] = (0,255,0)
-                    elif theta == 90:
+                    elif theta == '90.00':
                         pixeles [x,y] = (255,0,0)
+                    elif theta == '0.79':
+                        pixeles[x,y] = (0,0,255)
     original.save('lineas.png')
 
 if __name__=="__main__":
