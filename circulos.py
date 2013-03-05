@@ -2,7 +2,6 @@ from PIL import Image, ImageDraw,ImageFont
 import sys, random
 from math import sqrt,fabs,sin,cos,atan2, pow,radians
 
-
 def convolucion(im,g):
     w, h = im.size
     pixeles = im.load()
@@ -19,7 +18,6 @@ def convolucion(im,g):
                     except:
                         pass
             pixCon[x,y] = (suma,suma,suma)
-    #imCon.save('convolucion.png')
     return imCon
 
 def centroCirculo(imx, imy, im, r):
@@ -47,22 +45,20 @@ def centroCirculo(imx, imy, im, r):
                 centro = (int( x - r * cos(theta)), int( y - r * sin(theta)))
                 #redondear
                 centro = ((centro[0]/10)*10, (centro[1]/10)*10)
-                circulos[x,y]=centro
 
                 if not centro in freq:
                     freq[centro] = 1
                 else:
                     freq[centro] += 1
-            else:
-                circulos[x,y]=None
-    return circulos, freq
+            
+    return freq
 
 def amarillo():
     amarillo = (random.randint(238,255), random.randint(100,255), random.randint(0,50))
     return amarillo
 
 
-def etiquetarCirculos(im, freq, circulos,r):
+def etiquetarCirculos(im, freq, r):
     pixeles = im.load()
     w, h = im.size
     fuente = ImageFont.truetype('/usr/share/fonts/truetype/ubuntu-font-family/Ubuntu-LI.ttf',14)
@@ -76,16 +72,14 @@ def etiquetarCirculos(im, freq, circulos,r):
         imagen.text((i[0]+aux+3, i[1]), ('Circulo '+str(cont)), fill=(0,255,0), font=fuente)
         cont +=1
 
-    print color
-    
-    for x in range(w):
-        for y in range(h):
-            if circulos[x,y] in freq:
-                print x,' ',y
-                try:
-                    pixeles[x,y] = color[circulos[x,y]]
-                except:
-                    pass
+    #print color
+
+    for c in color.keys():
+        i ,j = c
+        for angulo in range(360):
+            x = i + r*cos(angulo)
+            y = j + r*sin(angulo)
+            pixeles[x,y] = color[c] 
     return im
 
 if __name__ =="__main__":
@@ -98,7 +92,7 @@ if __name__ =="__main__":
     imy = convolucion(im, my)
     radio = 55
     
-    circulos,freq = centroCirculo(imx, imy, im, radio)
+    freq = centroCirculo(imx, imy, im, radio)
     
     maximo = 0
     suma = 0.0
@@ -108,16 +102,16 @@ if __name__ =="__main__":
             maximo = freq[i]
 
     prom = suma/len(freq)
-    print prom
-    print maximo
+    #print prom
+    #print maximo
     umbral = maximo-prom
-    print umbral
+    #print umbral
 
     for i in freq.keys():
         if freq[i] < umbral:
             freq.pop(i)
-        else:
-            print freq[i]
+        #else:
+            #print freq[i]
         
-    etiquetarCirculos(im,freq,circulos,radio)
+    etiquetarCirculos(im,freq,radio)
     im.save('circulos.png')
