@@ -1,5 +1,5 @@
 import sys
-from PIL import Image, ImageDraw, ImageOps
+from PIL import Image, ImageDraw
 
 def grayScale(im):
     w,h = im.size
@@ -23,14 +23,10 @@ def blur(im):
             for i in range(x-1, x+2):
                 for j in range(y-1, y+2):
                     try:
-                        #ngbs.append(pix[i,j])
                         ngbs.append(list(pix[i,j]))
                     except IndexError:
                         pass
-            #ngbs.sort()
-            #p = ngbs[len(ngbs)/2][0]
             total = [ sum(z) for z in zip(*ngbs) ]
-            #pix[x,y] = p,p,p
             pix[x,y] = total[0]/len(ngbs), total[1]/len(ngbs), total[2]/len(ngbs)
     return blurred
 
