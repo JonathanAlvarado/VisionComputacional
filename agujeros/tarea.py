@@ -1,6 +1,5 @@
 import sys
 from PIL import Image, ImageDraw, ImageFont
-#from math import sqrt
 from random import randint
 
 def grayScale(im):
@@ -99,7 +98,7 @@ def verticalHistogram(im):
         temp = 0
         for x in range(w):
             temp += pix[x,y][0]
-        file_.write(str(x)+ ' ' + str(temp) + '\n')
+        file_.write(str(y)+ ' ' + str(temp) + '\n')
         hist.append(temp)
     for i in hist:
         prom +=i
@@ -142,7 +141,7 @@ def findCenters(coords, im, original, tot):
         min_ = c[0]
         promx = (max_[0] + min_[0])/2
         promy = (max_[1] + min_[1])/2
-        draw.ellipse((promx-r,promy-r, promx+r, promy+r), fill='blue')
+        draw.ellipse((promx-r,promy-r, promx+r, promy+r), fill='yellow')
         draw.text((promx,promy),id_, fill='red', font=font)
         print '\tAgujero %s -> %.2f%%'%(id_,tot[t]*100)
         t += 1
