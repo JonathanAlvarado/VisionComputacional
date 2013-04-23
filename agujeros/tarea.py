@@ -69,7 +69,7 @@ def bfs(im, root, color, out):
                             output[i,j] = color
                             coords.append((i, j))
                             q.append((i, j))
-    return coords, out
+    return coords, out, tot
 
 def horizontalHistogram(im):
     w,h = im.size
@@ -130,22 +130,21 @@ def possibleHoles(histx, histy, im):
 def purple():
     return (randint(85,255), randint(0, 150), randint(128, 255))
 
-def findCenters(coords, im, original):
-    centers = []
+def findCenters(coords, im, original, tot):
     draw = ImageDraw.Draw(im)
     font = ImageFont.truetype("/usr/share/fonts/truetype/freefont/FreeMonoOblique.ttf", 14)
     r = 2
-    t = 1
+    t = 0
     for c in coords:
-        id_ = 'a'+str(t)
+        id_ = 'a'+str(t+1)
         c.sort()
         max_ = c[-1]
         min_ = c[0]
         promx = (max_[0] + min_[0])/2
         promy = (max_[1] + min_[1])/2
-        centers.append((promx, promy))
         draw.ellipse((promx-r,promy-r, promx+r, promy+r), fill='blue')
         draw.text((promx,promy),id_, fill='red', font=font)
+        print '\tAgujero %s -> %.2f%%'%(id_,tot[t]*100)
         t += 1
     return im
 
@@ -161,25 +160,23 @@ def holeDetection(im):
     histy, promy = verticalHistogram(im)
     
     inter = possibleHoles(histx, histy, im)
-
-    prop = im.size
-    prop = float(original.size[0])/prop[0] , float(original.size[1]/prop[1])
-    w, h = original.size
     
     im = binarized(im,60)
     pix = im.load()
     coords = []
-
+    tot = []
+    area = im.size[0] * im.size[1]
     for i in inter:
         if pix[i] == (0,0,0):
-            c, out = bfs(im, (i), purple(), output)
+            c, out, t = bfs(im, (i), purple(), output)
             coords.append(c)
+            p = (float(t)/area)
+            tot.append(p)
 
-    im = findCenters(coords, out, original)
+    im = findCenters(coords, out, original,tot)
     im = im.resize((original.size), Image.ANTIALIAS)
     im.save('agujeros.png')
     im.show()
-
 
 if __name__ == '__main__':
     path = sys.argv[1]
