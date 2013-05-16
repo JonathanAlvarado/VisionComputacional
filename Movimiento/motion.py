@@ -1,8 +1,7 @@
 import cv2.cv as cv
-import Image
 import sys
 import numpy
-#import cv2.cv as cv
+import os
 
 def toarray(im):
     '''Converts opencv image into a numpy array '''
@@ -35,11 +34,28 @@ def binarize(im, tresh):
     im[numpy.where(im > [tresh])] = color#compare the elements, every element that is higher than the threshold gets a white color
     return im
 
-def motion(frame, im):
-    '''The objects that are moving are painted with a gray tone in the original frame '''
+def paint_motion(frame, im):
+    '''The objects that are moving are painted with a blue tone in the original frame '''
     white = numpy.array([255], dtype = im.dtype)
-    color = numpy.array([0], dtype = im.dtype)
+    color = numpy.array([255,0,0], dtype = im.dtype)
     frame[numpy.where(im == [white])] = color
+    return frame
+
+def detect(frame, motion, w,h):
+    size = 45
+    color = numpy.array([255], dtype = motion.dtype)
+    w = w/size
+    h = h/size
+    area = w*h
+    for x in range(w):
+        for y in range(h):
+            p1 = x * size , y * size
+            p2 = (x+1) * size, (y+1) * size
+            region = motion[p1[1]:p2[1] , p1[0]:p2[0]]
+            n = numpy.where(region == color)
+            n = len(n[0])/10
+            if n > area*0.001:
+                cv.Rectangle(frame, p1, p2, cv.CV_RGB(0, 255, 0), 2)
     return frame
 
 def capture(video):
@@ -64,10 +80,13 @@ def capture(video):
         out = difference(array1, array2)
         
         out = grayScale(out)
-        out = binarize(out, 15)
-        out = motion(array1, out)
-        im = cv.fromarray(out)
-        cv.SaveImage('motion/prueba%s.png'%curr,im)
+        out = binarize(out, 10)
+        paint = paint_motion(array1, out)
+        detection = detect(frame1, out, width, height)
+        im = cv.fromarray(paint)
+        #im = cv.fromarray(out)
+        cv.SaveImage('motion/prueba%s.png'%curr,detection)
+        #cv.SaveImage('motion/prueba%s.png'%curr,im)
         curr+=1
         if curr >= n - 1: 
             break
@@ -76,3 +95,5 @@ def capture(video):
 if __name__ == '__main__':
     video = sys.argv[1]
     capture(video)
+    os.system('rm motion.mp4')
+    os.system('ffmpeg -qscale 5 -r 20 -b 9600 -i motion/prueba%01d.png motion.mp4')
